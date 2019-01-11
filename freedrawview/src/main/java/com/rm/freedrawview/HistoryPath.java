@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * Created by Riccardo Moro on 9/27/2016.
  */
 
-class HistoryPath implements Parcelable, Serializable {
+public class HistoryPath implements Parcelable, Serializable {
 
     static final long serialVersionUID = 41L;
 
