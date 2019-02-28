@@ -130,6 +130,14 @@ public class FreeDrawView extends View implements View.OnTouchListener {
     }
 
     /**
+     * Get the current paint color without it's alpha
+     */
+    @ColorInt
+    public int getPaintColor() {
+        return mPaintColor;
+    }
+
+    /**
      * Set the paint color
      *
      * @param color The now color to be applied to the
@@ -142,14 +150,6 @@ public class FreeDrawView extends View implements View.OnTouchListener {
 
         mCurrentPaint.setColor(mPaintColor);
         mCurrentPaint.setAlpha(mPaintAlpha);// Restore the previous alpha
-    }
-
-    /**
-     * Get the current paint color without it's alpha
-     */
-    @ColorInt
-    public int getPaintColor() {
-        return mPaintColor;
     }
 
     /**
@@ -204,6 +204,13 @@ public class FreeDrawView extends View implements View.OnTouchListener {
         }
     }
 
+    /**
+     * Get the current paint alpha
+     */
+    @IntRange(from = 0, to = 255)
+    public int getPaintAlpha() {
+        return mPaintAlpha;
+    }
 
     /**
      * Set the paint opacity, must be between 0 and 1
@@ -220,13 +227,11 @@ public class FreeDrawView extends View implements View.OnTouchListener {
     }
 
     /**
-     * Get the current paint alpha
+     * Get the current behaviour on view resize
      */
-    @IntRange(from = 0, to = 255)
-    public int getPaintAlpha() {
-        return mPaintAlpha;
+    public ResizeBehaviour getResizeBehaviour() {
+        return mResizeBehaviour;
     }
-
 
     /**
      * Set what to do when the view is resized (on rotation if its dimensions are not fixed)
@@ -235,14 +240,6 @@ public class FreeDrawView extends View implements View.OnTouchListener {
     public void setResizeBehaviour(ResizeBehaviour newBehaviour) {
         mResizeBehaviour = newBehaviour;
     }
-
-    /**
-     * Get the current behaviour on view resize
-     */
-    public ResizeBehaviour getResizeBehaviour() {
-        return mResizeBehaviour;
-    }
-
 
     /**
      * Cancel the last drawn segment
@@ -458,6 +455,22 @@ public class FreeDrawView extends View implements View.OnTouchListener {
         }
     }
 
+    //saman aslani
+    public void restoreSamStateFromSerializable(FreeDrawSerializableOneState state) {
+
+        if (state != null) {
+
+
+            if (state.getPath() != null) {
+                mPaths.add(state.getPath());
+            }
+
+
+            notifyRedoUndoCountChanged();
+            invalidate();
+        }
+    }
+
     /**
      * Create a Bitmap with the content drawn inside the view
      */
@@ -473,9 +486,9 @@ public class FreeDrawView extends View implements View.OnTouchListener {
         }
     }
 
-    private void notifyPathDrawn() {
-        if (mPathDrawnListener != null) {
-            mPathDrawnListener.onNewPathDrawn();
+    private void notifyPathDrawn(HistoryPath historyPath) {
+        if (mPathDrawnListener != null ) {
+            mPathDrawnListener.onNewPathDrawn(historyPath);
         }
     }
 
@@ -582,11 +595,12 @@ public class FreeDrawView extends View implements View.OnTouchListener {
 
     // Create a path from the current points
     private void createHistoryPathFromPoints() {
-        mPaths.add(new HistoryPath(mPoints, new Paint(mCurrentPaint)));
+        HistoryPath historyPath = new HistoryPath(mPoints, new Paint(mCurrentPaint));
+        mPaths.add(historyPath);
 
         mPoints = new ArrayList<>();
 
-        notifyPathDrawn();
+        notifyPathDrawn(historyPath);
         notifyRedoUndoCountChanged();
     }
 

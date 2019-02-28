@@ -8,5 +8,5 @@ public interface PathDrawnListener {
 
     void onPathStart();
 
-    void onNewPathDrawn();
+    void onNewPathDrawn(HistoryPath historyPath);
 }

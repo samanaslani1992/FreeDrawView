@@ -15,16 +15,16 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rm.freedrawview.FreeDrawSerializableOneState;
 import com.rm.freedrawview.FreeDrawSerializableState;
 import com.rm.freedrawview.FreeDrawView;
+import com.rm.freedrawview.HistoryPath;
 import com.rm.freedrawview.PathDrawnListener;
 import com.rm.freedrawview.PathRedoUndoCountChangeListener;
 
 public class ActivityDraw extends AppCompatActivity
         implements View.OnClickListener, SeekBar.OnSeekBarChangeListener,
         PathRedoUndoCountChangeListener, FreeDrawView.DrawCreatorListener, PathDrawnListener {
-
-    private static final String TAG = ActivityDraw.class.getSimpleName();
 
     private static final int THICKNESS_STEP = 2;
     private static final int THICKNESS_MAX = 80;
@@ -37,9 +37,13 @@ public class ActivityDraw extends AppCompatActivity
     private LinearLayout mRoot;
     private FreeDrawView mFreeDrawView;
     private View mSideView;
-    private Button mBtnRandomColor, mBtnUndo, mBtnRedo, mBtnClearAll;
-    private SeekBar mThicknessBar, mAlphaBar;
-    private TextView mTxtRedoCount, mTxtUndoCount;
+    private Button mBtnRandomColor;
+    private Button mBtnUndo;
+    private Button mBtnRedo;
+    private Button mBtnClearAll;
+    private SeekBar mThicknessBar;
+    private TextView mTxtRedoCount;
+    private TextView mTxtUndoCount;
     private ProgressBar mProgressBar;
 
     private ImageView mImgScreen;
@@ -50,26 +54,26 @@ public class ActivityDraw extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_draw);
 
-        mRoot = (LinearLayout) findViewById(R.id.root);
+        mRoot = findViewById(R.id.root);
 
-        mImgScreen = (ImageView) findViewById(R.id.img_screen);
+        mImgScreen = findViewById(R.id.img_screen);
 
-        mTxtRedoCount = (TextView) findViewById(R.id.txt_redo_count);
-        mTxtUndoCount = (TextView) findViewById(R.id.txt_undo_count);
+        mTxtRedoCount = findViewById(R.id.txt_redo_count);
+        mTxtUndoCount = findViewById(R.id.txt_undo_count);
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progress);
+        mProgressBar = findViewById(R.id.progress);
 
-        mFreeDrawView = (FreeDrawView) findViewById(R.id.free_draw_view);
+        mFreeDrawView = findViewById(R.id.free_draw_view);
         mFreeDrawView.setOnPathDrawnListener(this);
         mFreeDrawView.setPathRedoUndoCountChangeListener(this);
 
         mSideView = findViewById(R.id.side_view);
-        mBtnRandomColor = (Button) findViewById(R.id.btn_color);
-        mBtnUndo = (Button) findViewById(R.id.btn_undo);
-        mBtnRedo = (Button) findViewById(R.id.btn_redo);
-        mBtnClearAll = (Button) findViewById(R.id.btn_clear_all);
-        mAlphaBar = (SeekBar) findViewById(R.id.slider_alpha);
-        mThicknessBar = (SeekBar) findViewById(R.id.slider_thickness);
+        mBtnRandomColor = findViewById(R.id.btn_color);
+        mBtnUndo = findViewById(R.id.btn_undo);
+        mBtnRedo = findViewById(R.id.btn_redo);
+        mBtnClearAll = findViewById(R.id.btn_clear_all);
+        SeekBar mAlphaBar = findViewById(R.id.slider_alpha);
+        mThicknessBar = findViewById(R.id.slider_thickness);
 
         mAlphaBar.setOnSeekBarChangeListener(null);
         mThicknessBar.setOnSeekBarChangeListener(null);
@@ -261,8 +265,14 @@ public class ActivityDraw extends AppCompatActivity
 
     // PathDrawnListener
     @Override
-    public void onNewPathDrawn() {
+    public void onNewPathDrawn(HistoryPath historyPath) {
         // The user has finished drawing a path
+
+        mFreeDrawView.undoAll();
+
+        FreeDrawSerializableOneState freeDrawSerializableOneState = new FreeDrawSerializableOneState(historyPath);
+        mFreeDrawView.restoreSamStateFromSerializable(freeDrawSerializableOneState);
+
     }
 
     @Override
